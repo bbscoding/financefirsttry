@@ -1,26 +1,26 @@
+"use client"
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import SupabaseProvider from '@/components/supabase-provider'
+import { createPagesBrowserClient } from '@supabase/auth-helpers-nextjs'
+import { SessionContextProvider } from '@supabase/auth-helpers-react'
+import { useState } from 'react'
 
-const inter = Inter({ subsets: ['latin'] })
-
-export const metadata: Metadata = {
-  title: 'Finans Takip',
-  description: 'Kendi bütçeni takip et',
-}
 
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const [supabase] = useState(() => createPagesBrowserClient())
+
   return (
     <html lang="tr">
-      <body className={inter.className}>
-        <SupabaseProvider>
+      <body>
+        <SessionContextProvider supabaseClient={supabase}>
           {children}
-        </SupabaseProvider>
+        </SessionContextProvider>
       </body>
     </html>
   )
