@@ -10,6 +10,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { useState } from "react"
+import { MainForm } from "./form"
+import {
+    DialogTrigger,
+} from "@/components/ui/dialog"
+
 
 export function NavMain({
   items,
@@ -20,6 +26,8 @@ export function NavMain({
     icon?: Icon
   }[]
 }) {
+  const [open, setOpen] = useState(false)
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -28,6 +36,7 @@ export function NavMain({
             <SidebarMenuButton
               tooltip="Quick Create"
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
+             onClick={() => setOpen(true)}
             >
               <IconCirclePlusFilled />
               <span>Quick Create</span>
@@ -42,6 +51,7 @@ export function NavMain({
             </Button>
           </SidebarMenuItem>
         </SidebarMenu>
+        <MainForm open={open} setOpen={setOpen} />
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
