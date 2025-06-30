@@ -1,5 +1,6 @@
 "use client"
-import { useSessionContext } from "@supabase/auth-helpers-react"
+
+import { useSessionContext, useSupabaseClient } from "@supabase/auth-helpers-react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { AppSidebar } from "@/components/app-sidebar"
@@ -12,29 +13,43 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 
-import data from "./data.json"
+// import data from "./data.json"
 
 export default function Page() {
   const { session, isLoading } = useSessionContext()
+  const supabase = useSupabaseClient()
   const router = useRouter()
-  const [userEmail, setUserEmail] = useState("")
+  const [transactions, setTransactions] = useState<any[]>([])
 
   useEffect(() => {
-    if (!session) {
+    if (!session && !isLoading) {
       router.push("/login")
-    } else {
-      router.push("/dashboard")
     }
-  }, [session, isLoading])
-  if (isLoading) {
-    return <div>Loading...</div>
-  }
+  }, [session, isLoading, router])
 
-  if (!session) {
-    return null // Ya da bir loader dönebilirsin
-  }
-  else {
-    // setUserEmail(session.user.email)
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      if (session) {
+        const { data, error } = await supabase
+          .from("transactions")
+          .select("*")
+          .eq("user_id", session.user.id)
+
+        if (error) {
+          console.error("Fetch error:", error.message)
+        } else {
+          setTransactions(data)
+          console.log(data)
+          console.log(transactions)
+        }
+      }
+    }
+
+    fetchTransactions()
+  }, [session, supabase])
+
+  if (isLoading || !session) {
+    return <div>Loading...</div>
   }
 
   return (
@@ -52,11 +67,11 @@ export default function Page() {
         <div className="flex flex-1 flex-col">
           <div className="@container/main flex flex-1 flex-col gap-2">
             <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-              <SectionCards />
+              <SectionCards transactions={transactions} />
               <div className="px-4 lg:px-6">
-                <ChartAreaInteractive />
+                <ChartAreaInteractive transactions={transactions} />
               </div>
-              <DataTable data={data} />
+              <DataTable data={transactions} />
             </div>
           </div>
         </div>

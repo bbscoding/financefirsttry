@@ -23,7 +23,7 @@ import {
     FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useSupabaseClient } from "@supabase/auth-helpers-react"
+import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react"
 
 
 
@@ -34,8 +34,8 @@ const formSchema = z.object({
     amount: z.coerce.number().min(1, {
         message: "Amount must be at least 1.",
     }),
-    type: z.string().min(2, {
-        message: "Type must be at least 2 characters.",
+    type: z.enum(['income', 'expense'], {
+        required_error: "Type is required",
     }),
     category: z.string().min(2, {
         message: "Category must be at least 2 characters.",
@@ -50,41 +50,42 @@ export function MainForm({
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
 }) {
     const supabase = useSupabaseClient()
+    const user = useUser()
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             title: "",
             amount: 0,
-            type: "Income",
+            type: "income",
             category: "Work",
         },
     })
 
-    async function onSubmit(values: z.infer<typeof formSchema>) {
-        const { data: { user } } = await supabase.auth.getUser()
-
+    const onSubmit = async (values: z.infer<typeof formSchema>): Promise<void> => {
         if (!user) {
-            console.error("User not logged in")
+            console.error("No user found")
             return
         }
-        const { data, error } = await supabase.from("transactions").insert([
-            {
-                title: values.title,
-                amount: values.amount,
-                type: values.type,
-                category: values.category,
-                user_id: user.id, 
-            },
-        ])
+
+        const { error } = await supabase
+            .from("transactions")
+            .insert([
+                {
+                    title: values.title,
+                    amount: values.amount,
+                    type: values.type.toLowerCase(),
+                    category: values.category,
+                    user_id: user.id,
+                },
+            ])
 
         if (error) {
             console.error("Supabase insert error:", error.message)
         } else {
-            console.log("Data inserted:", data)
+            console.log("Transaction inserted successfully")
             setOpen(false)
         }
     }
-
 
 
     return (
@@ -134,7 +135,10 @@ export function MainForm({
                                 <FormItem>
                                     <FormLabel>Type</FormLabel>
                                     <FormControl>
-                                        <Input placeholder="Income" {...field} />
+                                        <select {...field} className="w-full border rounded px-2 py-1">
+                                            <option value="income">Income</option>
+                                            <option value="expense">Expense</option>
+                                        </select>
                                     </FormControl>
                                     <FormMessage />
                                 </FormItem>
