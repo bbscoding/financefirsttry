@@ -52,6 +52,9 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
@@ -78,6 +81,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
+import {
+  IconDotsVertical,
+} from "@tabler/icons-react"
+
 
 // Güncellenmiş ve tutarlı schema
 export const transactionSchema = z.object({
@@ -202,10 +209,31 @@ const columns: ColumnDef<Transaction>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
-    cell: ({ row }) => <TransactionActions transaction={row.original} onEdit={handleEdit} onDelete={handleDelete} />,
-    size: 100,
-  }
+    enableHiding: false,
+    cell: ({ row }) => {
+      const payment = row.original
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <IconDotsVertical className="w-4 h-4" />
+              <span className="sr-only">Open menu</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(String(payment.id))}
+            >
+              Edit
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    },
+  },
+
 ]
 
 // Draggable row component
@@ -238,6 +266,8 @@ function DraggableRow({ row }: { row: Row<Transaction> }) {
 interface DataTableProps {
   data: Transaction[]
   onDataChange?: (data: Transaction[]) => void
+  onEdit?: (transaction: Transaction) => void
+  onDelete?: (transaction: Transaction) => void
 }
 
 export function DataTable({ data, onDataChange }: DataTableProps) {
