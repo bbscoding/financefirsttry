@@ -12,6 +12,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import { MainForm } from "@/components/form" // Veya dosya yolun neyse
 
 // import data from "./data.json"
 
@@ -20,6 +21,8 @@ export default function Page() {
   const supabase = useSupabaseClient()
   const router = useRouter()
   const [transactions, setTransactions] = useState<any[]>([])
+  const [open, setOpen] = useState(false)
+  const [editData, setEditData] = useState<any | null>(null)
 
   useEffect(() => {
     if (!session && !isLoading) {
@@ -71,7 +74,16 @@ export default function Page() {
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive transactions={transactions} />
               </div>
-              <DataTable data={transactions} />
+              <DataTable data={transactions}
+                onEdit={(transaction) => {
+                  setEditData(transaction)
+                  setOpen(true)
+                }} />
+              <MainForm
+                open={open}
+                setOpen={setOpen}
+                initialValues={editData ?? undefined}
+              />
             </div>
           </div>
         </div>

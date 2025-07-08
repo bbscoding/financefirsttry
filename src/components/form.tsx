@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react"
+import { useEffect } from "react"
 
 
 
@@ -45,47 +46,66 @@ const formSchema = z.object({
 export function MainForm({
     open,
     setOpen,
+    initialValues,
+    onSubmitSuccess,
 }: {
     open: boolean
     setOpen: React.Dispatch<React.SetStateAction<boolean>>
+    initialValues?: Partial<z.infer<typeof formSchema>> & { id?: number }
+    onSubmitSuccess?: () => void
 }) {
     const supabase = useSupabaseClient()
     const user = useUser()
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            title: "",
-            amount: 0,
-            type: "income",
-            category: "Work",
+            title: initialValues?.title || "",
+            amount: initialValues?.amount || 0,
+            type: initialValues?.type || "income",
+            category: initialValues?.category || "Work",
         },
     })
+    useEffect(() => {
+        if (initialValues) {
+            form.reset(initialValues)
+        }
+    }, [initialValues, form])
 
     const onSubmit = async (values: z.infer<typeof formSchema>): Promise<void> => {
-        if (!user) {
-            console.error("No user found")
-            return
+        if (!user) return
+
+        const payload = {
+            title: values.title,
+            amount: values.amount,
+            type: values.type.toLowerCase(),
+            category: values.category,
+            user_id: user.id,
         }
 
-        const { error } = await supabase
-            .from("transactions")
-            .insert([
-                {
-                    title: values.title,
-                    amount: values.amount,
-                    type: values.type.toLowerCase(),
-                    category: values.category,
-                    user_id: user.id,
-                },
-            ])
+        let error
+        if (initialValues?.id) {
+            // Update
+            const res = await supabase
+                .from("transactions")
+                .update(payload)
+                .eq("id", initialValues.id)
+            error = res.error
+        } else {
+            // Create
+            const res = await supabase
+                .from("transactions")
+                .insert([payload])
+            error = res.error
+        }
 
         if (error) {
-            console.error("Supabase insert error:", error.message)
+            console.error("Supabase error:", error.message)
         } else {
-            console.log("Transaction inserted successfully")
+            onSubmitSuccess?.()
             setOpen(false)
         }
     }
+
 
 
     return (

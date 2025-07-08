@@ -120,121 +120,7 @@ function DragHandle({ id }: { id: number }) {
   )
 }
 
-// Updated columns with better formatting
-const columns: ColumnDef<Transaction>[] = [
-  {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) => <DragHandle id={row.original.id} />,
-    size: 40,
-  },
-  {
-    accessorKey: "title",
-    header: "Title",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.original.title}</div>
-    ),
-  },
-  {
-    accessorKey: "category",
-    header: "Category",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.original.category}</div>
-    ),
-  },
-  {
-    accessorKey: "amount",
-    header: "Amount",
-    cell: ({ row }) => {
-      const amount = row.original.amount
-      const isIncome = row.original.type === 'income'
-      return (
-        <div className={`font-medium ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
-          {isIncome ? '+' : '-'}{Math.abs(amount).toLocaleString('tr-TR')} ₺
-        </div>
-      )
-    },
-  },
-  {
-    accessorKey: "type",
-    header: "Type",
-    cell: ({ row }) => {
-      const type = row.original.type
-      return (
-        <Badge
-          variant={type === 'income' ? 'default' : 'destructive'}
-          className="capitalize"
-        >
-          {type}
-        </Badge>
-      )
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-      const status = row.original.status
-      const variants = {
-        completed: 'default',
-        pending: 'secondary',
-        cancelled: 'destructive'
-      } as const
 
-      return (
-        <Badge
-          variant={variants[status] || 'outline'}
-          className="capitalize"
-        >
-          {status}
-        </Badge>
-      )
-    },
-  },
-  {
-    accessorKey: "created_at",
-    header: "Date",
-    cell: ({ row }) => {
-      const date = new Date(row.original.created_at)
-      return (
-        <div className="text-sm">
-          {date.toLocaleDateString("tr-TR", {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
-          })}
-        </div>
-      )
-    },
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const payment = row.original
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <IconDotsVertical className="w-4 h-4" />
-              <span className="sr-only">Open menu</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(String(payment.id))}
-            >
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
-  },
-
-]
 
 // Draggable row component
 function DraggableRow({ row }: { row: Row<Transaction> }) {
@@ -270,7 +156,7 @@ interface DataTableProps {
   onDelete?: (transaction: Transaction) => void
 }
 
-export function DataTable({ data, onDataChange }: DataTableProps) {
+export function DataTable({ data, onDataChange, onEdit }: DataTableProps) {
   const [localData, setLocalData] = React.useState<Transaction[]>(data)
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -306,6 +192,119 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
     () => localData.map(({ id }) => id.toString()),
     [localData]
   )
+  // Updated columns with better formatting
+  const columns: ColumnDef<Transaction>[] = [
+    {
+      id: "drag",
+      header: () => null,
+      cell: ({ row }) => <DragHandle id={row.original.id} />,
+      size: 40,
+    },
+    {
+      accessorKey: "title",
+      header: "Title",
+      cell: ({ row }) => (
+        <div className="font-medium">{row.original.title}</div>
+      ),
+    },
+    {
+      accessorKey: "category",
+      header: "Category",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.original.category}</div>
+      ),
+    },
+    {
+      accessorKey: "amount",
+      header: "Amount",
+      cell: ({ row }) => {
+        const amount = row.original.amount
+        const isIncome = row.original.type === 'income'
+        return (
+          <div className={`font-medium ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
+            {isIncome ? '+' : '-'}{Math.abs(amount).toLocaleString('tr-TR')} ₺
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: "type",
+      header: "Type",
+      cell: ({ row }) => {
+        const type = row.original.type
+        return (
+          <Badge
+            variant={type === 'income' ? 'default' : 'destructive'}
+            className="capitalize"
+          >
+            {type}
+          </Badge>
+        )
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status = row.original.status
+        const variants = {
+          completed: 'default',
+          pending: 'secondary',
+          cancelled: 'destructive'
+        } as const
+
+        return (
+          <Badge
+            variant={variants[status] || 'outline'}
+            className="capitalize"
+          >
+            {status}
+          </Badge>
+        )
+      },
+    },
+    {
+      accessorKey: "created_at",
+      header: "Date",
+      cell: ({ row }) => {
+        const date = new Date(row.original.created_at)
+        return (
+          <div className="text-sm">
+            {date.toLocaleDateString("tr-TR", {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })}
+          </div>
+        )
+      },
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const payment = row.original
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <IconDotsVertical className="w-4 h-4" />
+                <span className="sr-only">Open menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => onEdit?.(payment)}>
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )
+      },
+    },
+
+  ]
 
   const table = useReactTable({
     data: localData,
@@ -571,5 +570,6 @@ export function DataTable({ data, onDataChange }: DataTableProps) {
         </TabsContent>
       </Tabs>
     </div>
+
   )
 }
