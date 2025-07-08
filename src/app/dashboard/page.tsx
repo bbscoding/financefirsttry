@@ -12,6 +12,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
+import type { Transaction } from "@/components/data-table"
 import { MainForm } from "@/components/form" // Veya dosya yolun neyse
 
 // import data from "./data.json"
@@ -23,6 +24,42 @@ export default function Page() {
   const [transactions, setTransactions] = useState<any[]>([])
   const [open, setOpen] = useState(false)
   const [editData, setEditData] = useState<any | null>(null)
+
+  const fetchTransactions = async () => {
+    if (session) {
+      const { data, error } = await supabase
+        .from("transactions")
+        .select("*")
+        .eq("user_id", session.user.id)
+
+      if (error) {
+        console.error("Fetch error:", error.message)
+      } else {
+        setTransactions(data)
+      }
+    }
+  }
+
+  const handleDelete = async (transaction: Transaction) => {
+    const confirmed = confirm(`Are you sure you want to delete "${transaction.title}"?`)
+    if (!confirmed) return
+
+    const { error } = await supabase
+      .from("transactions")
+      .delete()
+      .eq("id", transaction.id)
+
+    if (error) {
+      console.error("Delete error:", error.message)
+    } else {
+      fetchTransactions()
+    }
+  }
+
+  useEffect(() => {
+    fetchTransactions()
+  }, [session])
+
 
   useEffect(() => {
     if (!session && !isLoading) {
@@ -78,7 +115,8 @@ export default function Page() {
                 onEdit={(transaction) => {
                   setEditData(transaction)
                   setOpen(true)
-                }} />
+                }}
+                onDelete={handleDelete} />
               <MainForm
                 open={open}
                 setOpen={setOpen}

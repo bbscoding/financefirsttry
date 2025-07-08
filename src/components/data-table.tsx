@@ -156,7 +156,7 @@ interface DataTableProps {
   onDelete?: (transaction: Transaction) => void
 }
 
-export function DataTable({ data, onDataChange, onEdit }: DataTableProps) {
+export function DataTable({ data, onDataChange, onEdit, onDelete }: DataTableProps) {
   const [localData, setLocalData] = React.useState<Transaction[]>(data)
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({})
@@ -297,7 +297,7 @@ export function DataTable({ data, onDataChange, onEdit }: DataTableProps) {
                 Edit
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+              <DropdownMenuItem className="text-red-600" onClick={() => onDelete?.(payment)}>Delete</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )
