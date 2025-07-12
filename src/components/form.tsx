@@ -35,7 +35,7 @@ const formSchema = z.object({
     amount: z.coerce.number().min(1, {
         message: "Amount must be at least 1.",
     }),
-    type: z.enum(['income', 'expense'], {
+    type: z.enum(['income', 'expense', 'investment', 'transfer', 'subscription', 'refund'], {
         required_error: "Type is required",
     }),
     category: z.string().min(2, {
@@ -158,6 +158,10 @@ export function MainForm({
                                         <select {...field} className="w-full border rounded px-2 py-1">
                                             <option value="income">Income</option>
                                             <option value="expense">Expense</option>
+                                            <option value="investment">Investment</option>
+                                            <option value="transfer">Transfer</option>
+                                            <option value="subscription">Subscription</option>
+                                            <option value="refund">Refund</option>
                                         </select>
                                     </FormControl>
                                     <FormMessage />

@@ -13,7 +13,8 @@ import {
   SidebarProvider,
 } from "@/components/ui/sidebar"
 import type { Transaction } from "@/components/data-table"
-import { MainForm } from "@/components/form" // Veya dosya yolun neyse
+import { MainForm } from "@/components/form"
+import { ChartPieDonutText } from "@/components/pie-chart"
 
 // import data from "./data.json"
 
@@ -111,6 +112,7 @@ export default function Page() {
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive transactions={transactions} />
               </div>
+              {/* <ChartPieDonutText data={transactions} /> */}
               <DataTable data={transactions}
                 onEdit={(transaction) => {
                   setEditData(transaction)

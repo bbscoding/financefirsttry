@@ -92,7 +92,7 @@ export const transactionSchema = z.object({
   title: z.string(),
   category: z.string(),
   amount: z.number(),
-  type: z.enum(['income', 'expense']),
+  type: z.enum(['income', 'expense', 'investment', 'transfer', 'subscription', 'refund']),
   status: z.enum(['completed', 'pending', 'cancelled']),
   created_at: z.string(),
   user_id: z.string().optional(),
@@ -219,7 +219,7 @@ export function DataTable({ data, onDataChange, onEdit, onDelete }: DataTablePro
       header: "Amount",
       cell: ({ row }) => {
         const amount = row.original.amount
-        const isIncome = row.original.type === 'income'
+        const isIncome = row.original.type === 'income' || row.original.type === 'investment' || row.original.type === 'refund'
         return (
           <div className={`font-medium ${isIncome ? 'text-green-600' : 'text-red-600'}`}>
             {isIncome ? '+' : '-'}{Math.abs(amount).toLocaleString('tr-TR')} ₺
@@ -234,7 +234,7 @@ export function DataTable({ data, onDataChange, onEdit, onDelete }: DataTablePro
         const type = row.original.type
         return (
           <Badge
-            variant={type === 'income' ? 'default' : 'destructive'}
+            variant={(type === 'income' || type === 'investment' || type === 'refund') ? 'default' : 'destructive'}
             className="capitalize"
           >
             {type}
@@ -347,11 +347,11 @@ export function DataTable({ data, onDataChange, onEdit, onDelete }: DataTablePro
   // Summary calculations
   const summary = React.useMemo(() => {
     const income = localData
-      .filter(t => t.type === 'income')
+      .filter(t => t.type === 'income' || t.type === 'investment' || t.type === 'refund')
       .reduce((sum, t) => sum + t.amount, 0)
 
     const expense = localData
-      .filter(t => t.type === 'expense')
+      .filter(t => t.type === 'expense' || t.type === 'subscription')
       .reduce((sum, t) => sum + Math.abs(t.amount), 0)
 
     return {
