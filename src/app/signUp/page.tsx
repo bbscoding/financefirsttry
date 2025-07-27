@@ -25,7 +25,7 @@ export default function Page() {
         }
         else {
             const { data, error } = await supabase.auth.signUp({ email, password })
-            console.log(email, password)
+
             if (error) {
                 console.error("Login error:", error)
                 setErrorMessage(error.message)

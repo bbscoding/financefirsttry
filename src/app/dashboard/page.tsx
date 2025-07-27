@@ -80,8 +80,6 @@ export default function Page() {
           console.error("Fetch error:", error.message)
         } else {
           setTransactions(data)
-          console.log(data)
-          console.log(transactions)
         }
       }
     }
@@ -112,7 +110,9 @@ export default function Page() {
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive transactions={transactions} />
               </div>
-              {/* <ChartPieDonutText data={transactions} /> */}
+              <div className="px-4 lg:px-6">
+                <ChartPieDonutText data={transactions} />
+              </div>
               <DataTable data={transactions}
                 onEdit={(transaction) => {
                   setEditData(transaction)

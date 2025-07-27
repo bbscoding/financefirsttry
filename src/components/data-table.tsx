@@ -84,6 +84,7 @@ import {
 import {
   IconDotsVertical,
 } from "@tabler/icons-react"
+import { useEffect } from "react"
 
 
 // Güncellenmiş ve tutarlı schema
@@ -168,7 +169,7 @@ export function DataTable({ data, onDataChange, onEdit, onDelete }: DataTablePro
   })
 
   // Data sync
-  React.useEffect(() => {
+  useEffect(() => {
     setLocalData(data)
   }, [data])
 

@@ -21,7 +21,6 @@ export default function Page() {
       email,
       password,
     })
-    console.log(email, password)
 
     if (error) {
       // setErrorMessage("Login Failed: Your user ID or password is incorrect")
@@ -29,8 +28,7 @@ export default function Page() {
       setErrorMessage(error.message)
     } else {
       setErrorMessage("")
-      console.log("Login successful:", data.user)
-      router.push('/dashboard') // Örnek yönlendirme
+      router.push('/dashboard')
     }
   }
 
